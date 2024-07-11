@@ -4,6 +4,11 @@
 // import java.util.Map;
 // import java.util.TreeMap;
 
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
 /**
  * Application to demonstrate a TreeMap storing key:value pairs in sorted
  * order based on natural ordering of keys and also a different ordering
@@ -12,7 +17,8 @@
 public class TollRoad {
     // TODO 1: Declare two Map variables to associate String keys with Vehicle objects.
     // TODO 1: One will sort by vehicle description and one will sort by vehicle state.
-
+    private Map<String, Vehicle> vehiclesByDescription;
+    private Map<String, Vehicle> vehiclesByState;
 
 
     /**
@@ -23,7 +29,18 @@ public class TollRoad {
     public TollRoad() {
         // TODO 2: Create the two TreeMap objects, the second of which must be
         // TODO 2: given an appropriate Comparator object when constructed.
+        this.vehiclesByDescription = new TreeMap<>();
 
+        Comparator<String> vehicleStateComparator = (description1, description2) -> {
+            // First, compare the second and third characters for sorting by state code.
+            int stateCodeComparison = description1.substring(1, 3).compareTo(description2.substring(1, 3));
+            if (stateCodeComparison != 0) {
+                return stateCodeComparison;
+            }
+            // If the state codes are identical, then compare the entire descriptions to check for complete equality.
+            return description1.compareTo(description2);
+        };
+        this.vehiclesByState = new TreeMap<>(vehicleStateComparator);
 
     }
 
@@ -37,7 +54,18 @@ public class TollRoad {
      */
     public void addToll(String description) {
         // TODO 3: Complete this method as described in the exercise.
-
+            Vehicle vehicle;
+            if (vehiclesByDescription.containsKey(description)) {
+                // Vehicle already exists, so retrieve it and increment the toll count.
+                vehicle = vehiclesByDescription.get(description);
+                vehicle.addToll();
+            } else {
+                // Vehicle does not exist, so create a new one and add it to both maps.
+                vehicle = new Vehicle(description);
+                vehiclesByDescription.put(description, vehicle);
+            }
+            // Ensure the vehiclesByState map is using the same Vehicle instance.
+            vehiclesByState.put(description, vehicle);
     }
 
     /**
@@ -48,7 +76,11 @@ public class TollRoad {
      */
     public String getVehicleReportByDescription() {
         // TODO 4: Complete this method as described in the exercise.
-        return null;
+        StringBuilder report = new StringBuilder();
+        for (Vehicle vehicle : vehiclesByDescription.values()) {
+            report.append(vehicle).append("\n");
+        }
+        return report.toString();
     }
 
     /**
@@ -59,7 +91,11 @@ public class TollRoad {
      */
     public String getVehicleReportByState() {
         // TODO 5: Complete this method as described in the exercise.
-        return null;
+        StringBuilder report = new StringBuilder();
+        for (Vehicle vehicle : vehiclesByState.values()) {
+            report.append(vehicle).append("\n");
+        }
+        return report.toString();
     }
 
     /**
